@@ -2,7 +2,6 @@ package com.example.instagramlogin.screens.login
 
 import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,13 +16,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,7 +49,36 @@ fun LoginScreen(modifier: Modifier) {
             .fillMaxSize()
     ) {
         Header(modifier = Modifier.align(Alignment.TopEnd))
-        Body(modifier = Modifier.fillMaxSize())
+        Body(modifier = Modifier.align(Alignment.Center))
+        Footer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        )
+    }
+}
+
+@Composable
+fun Footer(modifier: Modifier) {
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        HorizontalDivider(Modifier.fillMaxWidth())
+        CommonSpacer(32)
+        Row {
+            Text(
+                "Dont have an account?",
+                modifier = Modifier.padding(horizontal = 3.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
+            Text(
+                "Sign Up.",
+                modifier = Modifier,
+                fontWeight = FontWeight.Bold,
+                fontSize = 12.sp,
+                color = Color(0XFF4EA8E9)
+            )
+        }
     }
 }
 
@@ -61,6 +87,8 @@ fun Body(modifier: Modifier) {
 
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
+
+    var estado = email.isNotEmpty() && password.isNotEmpty()
 
     val commonModifier: Modifier = Modifier
         .fillMaxWidth()
@@ -87,20 +115,38 @@ fun Body(modifier: Modifier) {
         CommonSpacer(4)
         ForgotPassword(modifier = commonModifier, textLabel = "Forgot Password?")
         CommonSpacer(16)
-        LoginButtom(modifier = commonModifier, textLabel = "Log In")
+        LoginButtom(modifier = commonModifier, textLabel = "Log In", estado = estado)
         CommonSpacer(16)
         LoginDivider(modifier = commonModifier, textLabel = "OR")
         CommonSpacer(32)
-        SocialLogin(modifier = commonModifier, textLabel = "Continue as Marlon Alva", drawableSource = R.drawable.fb)
+        SocialLogin(
+            modifier = commonModifier,
+            textLabel = "Continue as Marlon Alva",
+            drawableSource = R.drawable.fb
+        )
     }
 
 }
 
 @Composable
 fun SocialLogin(modifier: Modifier, textLabel: String, drawableSource: Int) {
-    Row (modifier = modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center){
-        Image(painter = painterResource(drawableSource), contentDescription = "Icono de Facebook", modifier = Modifier.size(16.dp))
-        Text(textLabel, fontSize = 14.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(horizontal = 8.dp), color = Color(0xFF4EA8E9))
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Image(
+            painter = painterResource(drawableSource),
+            contentDescription = "Icono de Facebook",
+            modifier = Modifier.size(16.dp)
+        )
+        Text(
+            textLabel,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 8.dp),
+            color = Color(0xFF4EA8E9)
+        )
     }
 }
 
@@ -112,7 +158,13 @@ fun LoginDivider(modifier: Modifier, textLabel: String) {
                 .size(1.dp)
                 .weight(1f)
         )
-        Text(textLabel, modifier = Modifier.padding(horizontal = 18.dp), fontWeight = FontWeight.Bold, fontSize = 12.sp ,color = Color.Gray)
+        Text(
+            textLabel,
+            modifier = Modifier.padding(horizontal = 18.dp),
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
         HorizontalDivider(
             modifier = Modifier
                 .size(1.dp)
@@ -122,23 +174,19 @@ fun LoginDivider(modifier: Modifier, textLabel: String) {
 }
 
 @Composable
-fun LoginButtom(modifier: Modifier, textLabel: String) {
+fun LoginButtom(modifier: Modifier, textLabel: String, estado: Boolean) {
     Button(
         onClick = {},
         modifier = modifier,
-        enabled = false,
+        enabled = estado,
         shape = RoundedCornerShape(4.dp),
-        colors = ButtonColors(
-            containerColor = Color(0XFF4EA8E9), disabledContainerColor = Color(0XFF4EA8E9),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF4EA8E9),
+            disabledContainerColor = Color(0xFF78C8F9),
             contentColor = Color.White,
             disabledContentColor = Color.White
         )
     ) { Text(textLabel) }
-}
-
-@Composable
-fun CommonSpacer(space: Int) {
-    Spacer(modifier = Modifier.size(space.dp))
 }
 
 @Composable
@@ -171,13 +219,21 @@ fun Password(
         visualTransformation = if (isShown) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             Icon(
-                if (isShown) Icons.Rounded.FavoriteBorder else Icons.Default.Favorite,
+                if (isShown) painterResource(R.drawable.ic_visibility_off) else painterResource(R.drawable.ic_visibility),
                 contentDescription = "",
                 modifier = Modifier.clickable { isShown = !isShown }
             )
         },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        singleLine = true
+        singleLine = true,
+        maxLines = 1,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFFAFAFA),
+            unfocusedContainerColor = Color(0xFFFAFAFA),
+            focusedBorderColor = Color.Gray,
+            focusedTextColor = Color.Gray,
+            unfocusedTextColor = Color.Gray
+        )
     )
 }
 
@@ -188,7 +244,16 @@ fun Usuario(modifier: Modifier, textLabel: String, user: String, onvalueChange: 
         onValueChange = { onvalueChange(it) },
         label = { Text(textLabel) },
         modifier = modifier,
-        singleLine = true
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        singleLine = true,
+        maxLines = 1,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedContainerColor = Color(0xFFFAFAFA),
+            unfocusedContainerColor = Color(0xFFFAFAFA),
+            focusedBorderColor = Color.Gray,
+            focusedTextColor = Color.Gray,
+            unfocusedTextColor = Color.Gray
+        )
     )
 }
 
@@ -215,4 +280,9 @@ fun Header(modifier: Modifier) {
                 Log.i("Prueba", "Close")
             }
     )
+}
+
+@Composable
+fun CommonSpacer(space: Int) {
+    Spacer(modifier = Modifier.size(space.dp))
 }
