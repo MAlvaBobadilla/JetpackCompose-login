@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -41,20 +43,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.instagramlogin.R
 
-//@Preview(showSystemUi = true)
 @Composable
-fun LoginScreen(modifier: Modifier) {
+fun LoginScreen(modifier: Modifier, loginViewModel: LoginViewModel) {
+
+    val isLoading = loginViewModel.isLoading.observeAsState(false)
+
     Box(
         modifier = modifier
-            .fillMaxSize()
+            .fillMaxSize(),
     ) {
-        Header(modifier = Modifier.align(Alignment.TopEnd))
-        Body(modifier = Modifier.align(Alignment.Center))
-        Footer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-        )
+
+        if (isLoading.value) {
+
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                CircularProgressIndicator()
+            }
+        } else {
+            Header(modifier = Modifier.align(Alignment.TopEnd))
+            Body(modifier = Modifier.align(Alignment.Center), loginViewModel = loginViewModel)
+            Footer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+            )
+        }
     }
 }
 
@@ -83,12 +95,11 @@ fun Footer(modifier: Modifier) {
 }
 
 @Composable
-fun Body(modifier: Modifier) {
+fun Body(modifier: Modifier, loginViewModel: LoginViewModel) {
 
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    var estado = email.isNotEmpty() && password.isNotEmpty()
+    val email by loginViewModel.email.observeAsState(initial = "")
+    val password by loginViewModel.password.observeAsState(initial = "")
+    val isEnabled by loginViewModel.isEnabled.observeAsState(initial = false)
 
     val commonModifier: Modifier = Modifier
         .fillMaxWidth()
@@ -105,17 +116,22 @@ fun Body(modifier: Modifier) {
             modifier = commonModifier,
             textLabel = "Phone number, username or email",
             user = email,
-            onvalueChange = { email = it })
+            onvalueChange = { loginViewModel.onValueChange(it, password) })
         CommonSpacer(4)
         Password(
             modifier = commonModifier,
             textLabel = "Password",
             password = password,
-            onvalueChange = { password = it })
+            onvalueChange = { loginViewModel.onValueChange(email, it) })
         CommonSpacer(4)
         ForgotPassword(modifier = commonModifier, textLabel = "Forgot Password?")
         CommonSpacer(16)
-        LoginButtom(modifier = commonModifier, textLabel = "Log In", estado = estado)
+        LoginButtom(
+            modifier = commonModifier,
+            textLabel = "Log In",
+            estado = isEnabled,
+            loginViewModel = loginViewModel
+        )
         CommonSpacer(16)
         LoginDivider(modifier = commonModifier, textLabel = "OR")
         CommonSpacer(32)
@@ -174,9 +190,14 @@ fun LoginDivider(modifier: Modifier, textLabel: String) {
 }
 
 @Composable
-fun LoginButtom(modifier: Modifier, textLabel: String, estado: Boolean) {
+fun LoginButtom(
+    modifier: Modifier,
+    textLabel: String,
+    estado: Boolean,
+    loginViewModel: LoginViewModel
+) {
     Button(
-        onClick = {},
+        onClick = { loginViewModel.onButtonSelected() },
         modifier = modifier,
         enabled = estado,
         shape = RoundedCornerShape(4.dp),

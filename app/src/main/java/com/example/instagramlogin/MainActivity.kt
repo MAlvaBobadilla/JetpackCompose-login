@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.instagramlogin.screens.login.LoginScreen
+import com.example.instagramlogin.screens.login.LoginViewModel
 import com.example.instagramlogin.ui.theme.InstagramLoginTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,9 +17,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            InstagramLoginTheme {
+            InstagramLoginTheme(darkTheme = true) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginScreen( modifier = Modifier.padding(innerPadding) )
+                    LoginScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        loginViewModel = LoginViewModel()
+                    )
                 }
             }
         }
